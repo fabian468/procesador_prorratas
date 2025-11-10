@@ -142,11 +142,12 @@ def aplicar_formato_con_horas(writer, sheet_name, df):
             fill_color = header_hora_fill if i % 2 == 0 else header_hora_fill_2
             
             cell = worksheet.cell(row=FILA_HORA_COMBINADA, column=start_col)
-            cell.value = f'HORA {hora}'
+            cell.value = hora
             cell.fill = fill_color
             cell.font = header_font_hora
             cell.alignment = Alignment(horizontal="center", vertical="center")
             cell.border = thick_border
+            cell.number_format = 'h:mm'
             
             for c in range(start_col + 1, end_col + 1):
                 cell = worksheet.cell(row=FILA_HORA_COMBINADA, column=c)

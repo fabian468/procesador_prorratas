@@ -116,21 +116,15 @@ def ordenar_columnas(filtro):
     
     if 'HORA' in filtro.columns:
         if 'FECHA' in filtro.columns:
-            filtro['FECHA'] = pd.to_datetime(filtro['FECHA']).dt.date
+            filtro['FECHA'] = pd.to_datetime(filtro['FECHA']).dt.date       
+       
+        filtro['% DEL AUMENTO / DISMINUCION DEL TOTAL'] = 0  
         
-        totales_por_hora = filtro.groupby('HORA')['MONTO SUBE/BAJA (MW)'].sum().to_dict()
+        filtro['% DE AUMENTO / DISMINUCION IDEAL'] = 0  
         
-        # Agregar las columnas calculadas (con valores temporales para estructura)
-        filtro['% DEL AUMENTO / DISMINUCION DEL TOTAL'] = 0  # Será reemplazado por fórmula
+        filtro['% DIFERENCIA'] = 0  
         
-        filtro['% DE AUMENTO / DISMINUCION IDEAL'] = 33  # Valor fijo para 3 generadoras
-        
-        filtro['% DIFERENCIA'] = 0  # Será calculado en Excel
-        
-        filtro['AUMENTO / DISMINUCION IDEAL(MW)'] = filtro.apply(
-            lambda row: totales_por_hora[row['HORA']] * (33.33 / 100),
-            axis=1
-        )
+        filtro['AUMENTO / DISMINUCION IDEAL(MW)'] = 0
         
         columnas_agregar = [
             '% DEL AUMENTO / DISMINUCION DEL TOTAL',
