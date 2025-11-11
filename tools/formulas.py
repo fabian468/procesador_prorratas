@@ -4,7 +4,14 @@ thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side
 
 dachboard_border = Border(left=Side(style='dashed'), right=Side(style='dashed'), top=Side(style='dashed'), bottom=Side(style='dashed'))
 
-none_border = Border(left=Side(style='medium'), right=Side(style='medium'), top=Side(style='medium'), bottom=Side(style='medium'))
+# none_border = Border(left=Side(style='medium'), right=Side(style='medium'), top=Side(style='medium'), bottom=Side(style='medium'))
+
+none_border = Border(
+    left=Side(style='thin', color='cccccc'),
+    right=Side(style='thin', color='cccccc'),
+    top=Side(style='thin', color='cccccc'),
+    bottom=Side(style='thin', color='cccccc')
+)
 
 def insertar_formulas_porcentaje(worksheet, column_names, data_values, DATA_START_ROW, FILA_TOTALES_HEADER):
         """
