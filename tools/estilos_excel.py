@@ -53,11 +53,6 @@ def aplicar_formato_con_horas(writer, sheet_name, df):
     consigna_fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
     columnas_extra_fill = PatternFill(start_color="ffffff", end_color="ffffff", fill_type="solid")  # 
     
-    # Estilos para totales
-    totales_header_fill = PatternFill(start_color="305496", end_color="305496", fill_type="solid")
-    totales_header_font = Font(bold=True, color="FFFFFF", size=11)
-    totales_gen_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
-    totales_data_font = Font(bold=True, size=10)
     
     thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
     thick_border = Border(left=Side(style='medium'), right=Side(style='medium'), top=Side(style='medium'), bottom=Side(style='medium'))

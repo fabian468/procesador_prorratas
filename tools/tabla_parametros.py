@@ -34,9 +34,9 @@ def crear_tabla_parametros(worksheet, DATA_START_ROW, data_values, column_names)
         cell.alignment = Alignment(horizontal="left", vertical="center")
         
         cell = worksheet.cell(row=FILA_INICIO + 2, column=2)
-        cell.value = 0
+        cell.value =f'=SUM({"G"}{12}:{"ZZ"}{12})'
         cell.number_format = '0.000000'
-        cell.alignment = Alignment(horizontal="right", vertical="center")
+        cell.alignment = Alignment(horizontal="center", vertical="center")
         
         # Fila 13: US$ / MWh
         cell = worksheet.cell(row=FILA_INICIO + 3, column=1)
@@ -59,7 +59,8 @@ def crear_tabla_parametros(worksheet, DATA_START_ROW, data_values, column_names)
         cell.alignment = Alignment(horizontal="left", vertical="center")
         
         cell = worksheet.cell(row=FILA_INICIO + 4, column=2)
-        cell.value = 0.31
+        # B12*B13
+        cell.value = f'=B12*B13'
         cell.alignment = Alignment(horizontal="center", vertical="center")
         cell.number_format = '"$"#,##0.00'
         
