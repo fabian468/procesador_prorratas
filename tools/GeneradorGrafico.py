@@ -1,109 +1,90 @@
 from openpyxl.chart import LineChart, Reference, Series
 from openpyxl.chart.marker import DataPoint
-from openpyxl.drawing.fill import SolidColorFillProperties, ColorChoice
 from openpyxl.utils import get_column_letter
-import re
-from datetime import datetime
 
 def generarGrafico(column_names, data_values, generadoras, worksheet, fila_actual, DATA_START_ROW):
     try:
         chart = LineChart()
-        chart.title = "Consignas por Hora por Generadora"
-        chart.style = 7
+        chart.title = "CONSIGNAS"
+        chart.style = 2 
         chart.y_axis.title = "Consigna (MW)"
         chart.x_axis.title = "Horas"
+        
+    
+        chart.smooth = False 
 
         colores = [
-            "FF0000",
-            "0000FF", 
-            "00FF00", 
-            "FFA500",  
+            "4472C4",  # Azul
+            "d32213",  # Naranja/Rosa
+            "70AD47",  # Verde
+            "FFC000",  # Amarillo
         ]
 
-        columnas_consigna = [(i + 1, str(c)) for i, c in enumerate(column_names) if 'CONSIGNA' in str(c).upper()]
+        columnas_consigna = []
+        for i, col_name in enumerate(column_names, start=1):
+            if 'NUEVO SET POINT POTENCIA ACTIVA(MW)' in str(col_name).upper():
+                columnas_consigna.append(i)
+        
         if not columnas_consigna:
-            print("No se encontraron columnas con 'CONSIGNA' para graficar.")
+            print("No se encontraron columnas con 'NUEVO SET POINT' para graficar.")
             return
-
-        fila_eje_x = 3
-        start_col_index = 3
-        end_col_index = columnas_consigna[-1][0]
-
-        rango_encabezado = f"{get_column_letter(start_col_index)}{fila_eje_x}:{get_column_letter(end_col_index)}{fila_eje_x}"
-        encabezado_row = list(worksheet[rango_encabezado])[0] 
-        non_empty_cols = []
-        encabezados_limpios = []
-        for i, cell in enumerate(encabezado_row):
-            if cell.value is not None and str(cell.value).strip() != "":
-                col_idx = start_col_index + i
-                non_empty_cols.append(col_idx)
-                texto = str(cell.value).strip()
-                m = re.search(r'(\d{1,2}:\d{2})', texto)
-                if m:
-                    horas = m.group(1)
-                    try:
-                        hora_obj = datetime.strptime(horas, "%H:%M")
-                        encabezados_limpios.append(hora_obj.strftime("%H:%M"))
-                    except:
-                        encabezados_limpios.append(horas)
-                else:
-                    encabezados_limpios.append(texto)
-
-        if not non_empty_cols:
-            print("No hay encabezados válidos en la fila de horas.")
-            return
-
-        fila_aux_cat = fila_actual + 100
+        
+        fila_horas = 3
+        columnas_horas = [col - 2 for col in columnas_consigna]
+        
+        fila_aux_cat = DATA_START_ROW + len(data_values) + 100
         fila_aux_data_start = fila_aux_cat + 1
+        col_aux_start = 3
+        
+        for i, col_hora in enumerate(columnas_horas):
+            valor_hora = worksheet.cell(row=fila_horas, column=col_hora).value
+            worksheet.cell(row=fila_aux_cat, column=col_aux_start + i, value=valor_hora)
+        
+        cats = Reference(
+            worksheet,
+            min_col=col_aux_start,
+            min_row=fila_aux_cat,
+            max_col=col_aux_start + len(columnas_horas) - 1,
+            max_row=fila_aux_cat
+        )
 
-        for j, txt in enumerate(encabezados_limpios):
-            worksheet.cell(row=fila_aux_cat, column=start_col_index + j, value=txt)
-
-        filas_aux_generadora = []
-        for g_idx, gen in enumerate(generadoras):
+        filas_aux_generadoras = []
+        for idx, gen in enumerate(generadoras):
             fila_gen = None
             for i, row_data in enumerate(data_values):
                 if row_data[1] == gen:
                     fila_gen = DATA_START_ROW + i
                     break
+            
             if fila_gen is None:
                 print(f"Advertencia: no se encontró fila para la generadora '{gen}'")
                 continue
 
-            fila_aux = fila_aux_data_start + len(filas_aux_generadora)
-            filas_aux_generadora.append((gen, fila_aux))
-
-            for j, orig_col in enumerate(non_empty_cols):
-                val = worksheet.cell(row=fila_gen, column=orig_col).value
-                worksheet.cell(row=fila_aux, column=start_col_index + j, value=val)
-
-        if not filas_aux_generadora:
-            print("No se copiaron filas de generadoras a la zona auxiliar.")
-            return
-
-        cats = Reference(
-            worksheet,
-            min_col=start_col_index,
-            min_row=fila_aux_cat,
-            max_col=start_col_index + len(encabezados_limpios) - 1,
-            max_row=fila_aux_cat
-        )
-
-        # Crear series con colores personalizados
-        for idx, (gen, fila_aux) in enumerate(filas_aux_generadora):
+            fila_aux_gen = fila_aux_data_start + len(filas_aux_generadoras)
+            filas_aux_generadoras.append((gen, fila_aux_gen))
+            
+            for i, col_consigna in enumerate(columnas_consigna):
+                valor = worksheet.cell(row=fila_gen, column=col_consigna).value
+                worksheet.cell(row=fila_aux_gen, column=col_aux_start + i, value=valor)
+            
             values = Reference(
                 worksheet,
-                min_col=start_col_index,
-                min_row=fila_aux,
-                max_col=start_col_index + len(encabezados_limpios) - 1,
-                max_row=fila_aux
+                min_col=col_aux_start,
+                min_row=fila_aux_gen,
+                max_col=col_aux_start + len(columnas_consigna) - 1,
+                max_row=fila_aux_gen
             )
+            
             serie = Series(values, title=gen)
             
-            # Asignar color a la línea
-            color_hex = colores[idx % len(colores)]  
+            color_hex = colores[idx % len(colores)]
             serie.graphicalProperties.line.solidFill = color_hex
-            serie.graphicalProperties.line.width = 25000  
+            serie.graphicalProperties.line.width = 20000
+            
+            serie.marker.symbol = "circle" 
+            serie.marker.size = 6
+            serie.marker.graphicalProperties.solidFill = color_hex
+            serie.marker.graphicalProperties.line.solidFill = color_hex
             
             chart.series.append(serie)
 
@@ -111,12 +92,14 @@ def generarGrafico(column_names, data_values, generadoras, worksheet, fila_actua
 
         chart.height = 12
         chart.width = 20
-        chart.legend.position = 'r'
-        # chart.x_axis.tickLblPos = "low"
+        chart.legend.position = 'b' 
+        
+        chart.x_axis.tickLblSkip = 1
+        chart.x_axis.tickMarkSkip = 1
 
-        worksheet.add_chart(chart, "C16")
+        worksheet.add_chart(chart, "E15")
 
     except Exception as e:
-        print(f" Error al crear el gráfico: {e}")
+        print(f"Error al crear el gráfico: {e}")
         import traceback
         traceback.print_exc()

@@ -3,7 +3,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image
 import pandas as pd
 from openpyxl.chart import LineChart, Reference, Series
-# from GeneradorGrafico import generarGrafico
+from tools.GeneradorGrafico import generarGrafico
 from tools.formulas import insertar_formulas_porcentaje
 from tools.tabla_parametros import crear_tabla_parametros
 
@@ -316,4 +316,4 @@ def aplicar_formato_con_horas(writer, sheet_name, df):
 
     insertar_formulas_porcentaje(worksheet, column_names, data_values, DATA_START_ROW, FILA_TOTALES_HEADER)
 
-    # generarGrafico(column_names, data_values, generadoras,  worksheet, fila_actual , DATA_START_ROW)
+    generarGrafico(column_names, data_values, generadoras,  worksheet, fila_actual , DATA_START_ROW)
